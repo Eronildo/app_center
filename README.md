@@ -20,7 +20,7 @@ For more details: [Get Started with iOS](https://docs.microsoft.com/en-us/appcen
 ## Usage
 
 ```dart
-import 'package:app_center/app_center.dart';
+import 'package:app_center_plugin/app_center_plugin.dart';
 
 final secret = Platform.isAndroid ? 'ANDROID_SECRET' : 'IOS_SECRET';
 
