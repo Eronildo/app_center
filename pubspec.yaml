@@ -1,4 +1,4 @@
-name: app_center
+name: app_center_plugin
 description: A AppCenter Flutter plugin with Analytics and Crashes.
 version: 1.0.0
 homepage: https://github.com/Eronildo/app_center

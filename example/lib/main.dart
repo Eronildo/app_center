@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:app_center/app_center.dart';
+import 'package:app_center_plugin/app_center_plugin.dart';
+
 
 const androidSecret = '043be909-44a3-4675-b8b3-3078cb55d379';
 const iOSSecret = '894914f3-91d8-48c0-a929-d02e8b5b2178';

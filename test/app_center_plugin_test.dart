@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:app_center/app_center.dart';
+import 'package:app_center_plugin/app_center_plugin.dart';
+
 
 void main() {
   const MethodChannel channel = MethodChannel('app_center');
