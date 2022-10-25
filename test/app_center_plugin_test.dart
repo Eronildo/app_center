@@ -35,17 +35,41 @@ void main() {
     expect(AppCenter.trackEvent('any_event'), completes);
   });
 
-  test('Convert stack trace', () {
-    try {
-      throw Exception();
-    } catch (e) {
+  group('Given stack trace ', () {
+    test('Should convert when stack trace is mocked', () {
       final linesOfStackTrace = convertStackTrace(stackTrace);
 
       expect(linesOfStackTrace![0]["declaringClass"], "_MyHomePageState");
       expect(linesOfStackTrace[0]["methodName"], "_trackError");
       expect(linesOfStackTrace[0]["fileName"], "package:app_center_example/main.dart");
       expect(linesOfStackTrace[0]["lineNumber"], "110");
-    }
+    });
+
+    test('Should convert when exception is throw', () {
+      try {
+        throw Exception();
+      } catch (e, s) {
+        final linesOfStackTrace = convertStackTrace(s.toString()); // FIXME
+
+        expect(linesOfStackTrace, isNotNull);
+        expect(linesOfStackTrace![0]["declaringClass"], "main.<anonymous closure>");
+        expect(linesOfStackTrace[0]["methodName"], "<anonymous closure>");
+        expect(linesOfStackTrace[0]["fileName"], contains("test/app_center_plugin_test.dart"));
+        expect(linesOfStackTrace[0]["lineNumber"], "50");
+      }
+    });
+
+    test('Should convert when stack trace is empty', () {
+      final linesOfStackTrace = convertStackTrace("");
+
+      expect(linesOfStackTrace, isEmpty);
+    });
+
+    test('Should convert when stack trace is null', () {
+      final linesOfStackTrace = convertStackTrace(null);
+
+      expect(linesOfStackTrace, isNull);
+    });
   });
 }
 
