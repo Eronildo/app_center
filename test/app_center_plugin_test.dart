@@ -1,6 +1,7 @@
 import 'package:app_center_plugin/app_center_plugin.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('app_center');
@@ -37,11 +38,11 @@ void main() {
 
   group('Given stack trace ', () {
     test('Should convert when stack trace is mocked', () {
-      final linesOfStackTrace = convertStackTrace(stackTrace);
+      final linesOfStackTrace = convertStackTrace(Trace.parse(stackTrace).original);
 
       expect(linesOfStackTrace![0]["declaringClass"], "_MyHomePageState");
       expect(linesOfStackTrace[0]["methodName"], "_trackError");
-      expect(linesOfStackTrace[0]["fileName"], "package:app_center_example/main.dart");
+      expect(linesOfStackTrace[0]["fileName"], "main.dart");
       expect(linesOfStackTrace[0]["lineNumber"], "110");
     });
 
@@ -49,20 +50,13 @@ void main() {
       try {
         throw Exception();
       } catch (e, s) {
-        final linesOfStackTrace = convertStackTrace(s.toString()); // FIXME
+        final linesOfStackTrace = convertStackTrace(s);
 
-        expect(linesOfStackTrace, isNotNull);
-        expect(linesOfStackTrace![0]["declaringClass"], "main.<anonymous closure>");
-        expect(linesOfStackTrace[0]["methodName"], "<anonymous closure>");
-        expect(linesOfStackTrace[0]["fileName"], contains("test/app_center_plugin_test.dart"));
-        expect(linesOfStackTrace[0]["lineNumber"], "50");
+        expect(linesOfStackTrace![0]["declaringClass"], "main");
+        expect(linesOfStackTrace[0]["methodName"], "<fn>.<fn>");
+        expect(linesOfStackTrace[0]["fileName"], "app_center_plugin_test.dart");
+        expect(linesOfStackTrace[0]["lineNumber"], "51");
       }
-    });
-
-    test('Should convert when stack trace is empty', () {
-      final linesOfStackTrace = convertStackTrace("");
-
-      expect(linesOfStackTrace, isEmpty);
     });
 
     test('Should convert when stack trace is null', () {

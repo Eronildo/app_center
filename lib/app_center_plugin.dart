@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 class AppCenter {
   static const MethodChannel _channel = MethodChannel('app_center');
@@ -20,52 +21,36 @@ class AppCenter {
       _channel.invokeMethod('trackError', <String, dynamic>{
         'errorMessage': errorMessage,
         'properties': properties ?? <String, String>{},
-        'stackTrace': convertStackTrace(stackTrace?.toString())
+        'stackTrace': convertStackTrace(stackTrace)
       });
 }
 
-List<Map<String, String>>? convertStackTrace(String? stackTrace) {
+List<Map<String, String>>? convertStackTrace(StackTrace? stackTrace) {
   if (stackTrace == null) return null;
 
-  var list = <Map<String, String>>[];
-  var lines = stackTrace.toString().split('\n');
-  for (var lineRaw in lines) {
-    lineRaw = lineRaw.replaceAll(RegExp(' +'), ' ');
-    if (lineRaw.isEmpty) {
-      continue;
+  var trace = Trace.from(stackTrace);
+
+  var result = <Map<String, String>>[];
+
+  for (var frame in trace.frames) {
+    String? member = frame.member;
+    String declaringClass = '';
+    String methodName = '';
+
+    if (member != null) {
+      var splittedMember = member.split('.');
+      declaringClass = splittedMember.length > 1 ? splittedMember.removeAt(0) : '';
+      methodName = splittedMember.join('.');
     }
 
-    var line = lineRaw.split(' ');
-    var classAndMethod = line[1].split('.');
-    String declaringClass;
-    String methodName;
-    if (classAndMethod.length > 1) {
-      declaringClass = classAndMethod[0];
-      methodName = classAndMethod[1];
-    } else {
-      declaringClass = "";
-      methodName = classAndMethod[0];
-    }
+    var fileName = frame.uri.path.split('/').last;
 
-    var fileAndLineRaw = line[2];
-    fileAndLineRaw = fileAndLineRaw.replaceAll('(', '');
-    fileAndLineRaw = fileAndLineRaw.replaceAll(')', '');
-    var fileAndLine = fileAndLineRaw.split(':');
-    String fileName;
-    String lineNumber;
-    if (fileAndLineRaw.length > 3) {
-      fileName = "${fileAndLine[0]}:${fileAndLine[1]}";
-      lineNumber = fileAndLine[2];
-    } else {
-      fileName = fileAndLine[0];
-      lineNumber = fileAndLine[1];
-    }
-    list.add({
-      "declaringClass": declaringClass,
-      "methodName": methodName,
-      "fileName": fileName,
-      "lineNumber": lineNumber
+    result.add({
+      'declaringClass': declaringClass,
+      'methodName': methodName,
+      'fileName': fileName,
+      'lineNumber': frame.line?.toString() ?? ''
     });
   }
-  return list;
+  return result;
 }
