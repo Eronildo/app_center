@@ -8,9 +8,9 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import com.microsoft.appcenter.AppCenter;
-import com.microsoft.appcenter.analytics.Analytics;
-import com.microsoft.appcenter.crashes.Crashes;
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
 
 /** AppCenterPlugin */
 class AppCenterPlugin: FlutterPlugin, MethodCallHandler {
@@ -22,7 +22,7 @@ class AppCenterPlugin: FlutterPlugin, MethodCallHandler {
   private var application: Application? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    application = flutterPluginBinding.getApplicationContext() as Application
+    application = flutterPluginBinding.applicationContext as Application
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "app_center")
     channel.setMethodCallHandler(this)
   }
@@ -42,7 +42,13 @@ class AppCenterPlugin: FlutterPlugin, MethodCallHandler {
       "trackError" -> {
         val errorMessage: String? = call.argument("errorMessage")
         val trackErrorProperties: Map<String, String>? = call.argument("properties")
+        val stackTrace: List<Map<String, String>>? = call.argument("stackTrace")
+        val stackTraceElements = mutableListOf<StackTraceElement>()
+        stackTrace?.forEach { element ->
+          stackTraceElements.add(StackTraceElement(element["declaringClass"], element["methodName"], element["fileName"], element["lineNumber"]?.toInt() ?: 0))
+        }
         val exception = Exception(errorMessage)
+        exception.stackTrace = stackTraceElements.toTypedArray()
         Crashes.trackError(exception, trackErrorProperties, null)
       }
       else -> {

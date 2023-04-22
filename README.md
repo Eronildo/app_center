@@ -19,6 +19,8 @@ For more details: [Get Started with iOS](https://docs.microsoft.com/en-us/appcen
 
 ## Usage
 
+Simple package usage:
+
 ```dart
 import 'package:app_center_plugin/app_center_plugin.dart';
 
@@ -33,3 +35,36 @@ AppCenter.trackEvent('my event', <String, String> {
 
 AppCenter.trackError('error message');
 ```
+
+How to catch Flutter and Dart errors:
+
+```dart
+WidgetsFlutterBinding.ensureInitialized();
+
+// Start AppCenter
+await AppCenter.start(secret);
+
+// Log Flutter errors with FlutterError.onError
+FlutterError.onError = (FlutterErrorDetails errorDetails) {
+  FlutterError.presentError(errorDetails);
+  // Send Flutter errors to AppCenter
+  AppCenter.trackError(
+    errorDetails.exceptionAsString(),
+    properties: {"library": errorDetails.library ?? ""},
+    stackTrace: errorDetails.stack,
+  );
+};
+
+// Log errors not caught by Flutter with PlatformDispatcher.instance.onError
+PlatformDispatcher.instance.onError = (error, stack) {
+  AppCenter.trackError(
+    error.toString(),
+    stackTrace: stack,
+  );
+  return true;
+};
+
+runApp(const MyApp());
+```
+
+Check out the [official documentation](https://docs.flutter.dev/testing/errors) for more information on how to handle errors in Flutter 

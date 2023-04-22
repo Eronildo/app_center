@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 class AppCenter {
   static const MethodChannel _channel = MethodChannel('app_center');
 
   static Future<dynamic> start(String secret) {
-    return _channel
-        .invokeMethod('start', <String, dynamic>{'secret': secret});
+    return _channel.invokeMethod('start', <String, dynamic>{'secret': secret});
   }
 
   static Future trackEvent(String name, [Map<String, String>? properties]) =>
@@ -17,9 +17,40 @@ class AppCenter {
       });
 
   static Future trackError(String errorMessage,
-          [Map<String, String>? properties]) =>
+          {Map<String, String>? properties, StackTrace? stackTrace}) =>
       _channel.invokeMethod('trackError', <String, dynamic>{
         'errorMessage': errorMessage,
         'properties': properties ?? <String, String>{},
+        'stackTrace': convertStackTrace(stackTrace)
       });
+}
+
+List<Map<String, String>>? convertStackTrace(StackTrace? stackTrace) {
+  if (stackTrace == null) return null;
+
+  var trace = Trace.from(stackTrace);
+
+  var result = <Map<String, String>>[];
+
+  for (var frame in trace.frames) {
+    String? member = frame.member;
+    String declaringClass = '';
+    String methodName = '';
+
+    if (member != null) {
+      var splittedMember = member.split('.');
+      declaringClass = splittedMember.length > 1 ? splittedMember.removeAt(0) : '';
+      methodName = splittedMember.join('.');
+    }
+
+    var fileName = frame.uri.path.split('/').last;
+
+    result.add({
+      'declaringClass': declaringClass,
+      'methodName': methodName,
+      'fileName': fileName,
+      'lineNumber': frame.line?.toString() ?? ''
+    });
+  }
+  return result;
 }
