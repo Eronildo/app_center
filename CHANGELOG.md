@@ -1,6 +1,6 @@
 ## [2.0.0] - 2022-10-25
 
-* BREAKING CHANGE: Changed trackError parameters from position parameters to named parameters
+* BREAKING CHANGE: Changed trackError parameters from position parameters to named parameters (thanks to SamTobias)
 * feat(trackError): Track error's stack trace on Android
 * feat: Upgraded Android target version to 33
 * feat: Upgraded dependencies
