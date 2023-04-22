@@ -5,6 +5,3 @@
 .pub/
 
 build/
-
-.idea
-*.iml
