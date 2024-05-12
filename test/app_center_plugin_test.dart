@@ -9,7 +9,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
       switch (methodCall.method) {
         case 'trackEvent':
         case 'trackError':
@@ -17,11 +18,13 @@ void main() {
         default:
           return true;
       }
+      return null;
     });
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (_) => null);
   });
 
   test('AppCenter.start', () async {
@@ -38,7 +41,8 @@ void main() {
 
   group('Given stack trace ', () {
     test('Should convert when stack trace is mocked', () {
-      final linesOfStackTrace = convertStackTrace(Trace.parse(stackTrace).original);
+      final linesOfStackTrace =
+          convertStackTrace(Trace.parse(stackTrace).original);
 
       expect(linesOfStackTrace![0]["declaringClass"], "_MyHomePageState");
       expect(linesOfStackTrace[0]["methodName"], "_trackError");
@@ -55,7 +59,7 @@ void main() {
         expect(linesOfStackTrace![0]["declaringClass"], "main");
         expect(linesOfStackTrace[0]["methodName"], "<fn>.<fn>");
         expect(linesOfStackTrace[0]["fileName"], "app_center_plugin_test.dart");
-        expect(linesOfStackTrace[0]["lineNumber"], "51");
+        expect(linesOfStackTrace[0]["lineNumber"], "55");
       }
     });
 

@@ -1,3 +1,7 @@
+## [2.0.1] - 2024-05-11
+
+* Upgrade packages versions and add documentation.
+
 ## [2.0.0] - 2022-10-25
 
 * BREAKING CHANGE: Changed trackError parameters from position parameters to named parameters (thanks to SamTobias)
